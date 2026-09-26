@@ -10,33 +10,263 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
+import { Route as CmsIndexRouteImport } from './routes/cms/index'
+import { Route as AuthenticatedAdministrationActivityLogsRouteImport } from './routes/_authenticated/administration/activity-logs'
+import { Route as AuthenticatedAdministrationPermissionsRouteImport } from './routes/_authenticated/administration/permissions'
+import { Route as AuthenticatedAdministrationRolesRouteImport } from './routes/_authenticated/administration/roles'
+import { Route as AuthenticatedAdministrationUsersRouteImport } from './routes/_authenticated/administration/users'
+import { Route as AuthenticatedModulesSlugRouteImport } from './routes/_authenticated/modules/$slug'
+import { Route as AuthenticatedParametersIndexRouteImport } from './routes/_authenticated/parameters/index'
+import { Route as AuthenticatedParametersApiRouteImport } from './routes/_authenticated/parameters/api'
+import { Route as AuthenticatedParametersCompanyRouteImport } from './routes/_authenticated/parameters/company'
+import { Route as AuthenticatedParametersConnectionsRouteImport } from './routes/_authenticated/parameters/connections'
+import { Route as AuthenticatedParametersModulesRouteImport } from './routes/_authenticated/parameters/modules'
+import { Route as AuthenticatedParametersSystemRouteImport } from './routes/_authenticated/parameters/system'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const CmsIndexRoute = CmsIndexRouteImport.update({
+  id: '/cms/',
+  path: '/cms/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdministrationActivityLogsRoute =
+  AuthenticatedAdministrationActivityLogsRouteImport.update({
+    id: '/administration/activity-logs',
+    path: '/administration/activity-logs',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdministrationPermissionsRoute =
+  AuthenticatedAdministrationPermissionsRouteImport.update({
+    id: '/administration/permissions',
+    path: '/administration/permissions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdministrationRolesRoute =
+  AuthenticatedAdministrationRolesRouteImport.update({
+    id: '/administration/roles',
+    path: '/administration/roles',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdministrationUsersRoute =
+  AuthenticatedAdministrationUsersRouteImport.update({
+    id: '/administration/users',
+    path: '/administration/users',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedModulesSlugRoute =
+  AuthenticatedModulesSlugRouteImport.update({
+    id: '/modules/$slug',
+    path: '/modules/$slug',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParametersIndexRoute =
+  AuthenticatedParametersIndexRouteImport.update({
+    id: '/parameters/',
+    path: '/parameters/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParametersApiRoute =
+  AuthenticatedParametersApiRouteImport.update({
+    id: '/parameters/api',
+    path: '/parameters/api',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParametersCompanyRoute =
+  AuthenticatedParametersCompanyRouteImport.update({
+    id: '/parameters/company',
+    path: '/parameters/company',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParametersConnectionsRoute =
+  AuthenticatedParametersConnectionsRouteImport.update({
+    id: '/parameters/connections',
+    path: '/parameters/connections',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParametersModulesRoute =
+  AuthenticatedParametersModulesRouteImport.update({
+    id: '/parameters/modules',
+    path: '/parameters/modules',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParametersSystemRoute =
+  AuthenticatedParametersSystemRouteImport.update({
+    id: '/parameters/system',
+    path: '/parameters/system',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/security': typeof AuthenticatedSecurityRoute
+  '/cms/': typeof CmsIndexRoute
+  '/administration/activity-logs': typeof AuthenticatedAdministrationActivityLogsRoute
+  '/administration/permissions': typeof AuthenticatedAdministrationPermissionsRoute
+  '/administration/roles': typeof AuthenticatedAdministrationRolesRoute
+  '/administration/users': typeof AuthenticatedAdministrationUsersRoute
+  '/modules/$slug': typeof AuthenticatedModulesSlugRoute
+  '/parameters/api': typeof AuthenticatedParametersApiRoute
+  '/parameters/company': typeof AuthenticatedParametersCompanyRoute
+  '/parameters/connections': typeof AuthenticatedParametersConnectionsRoute
+  '/parameters/modules': typeof AuthenticatedParametersModulesRoute
+  '/parameters/system': typeof AuthenticatedParametersSystemRoute
+  '/parameters/': typeof AuthenticatedParametersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/security': typeof AuthenticatedSecurityRoute
+  '/cms': typeof CmsIndexRoute
+  '/administration/activity-logs': typeof AuthenticatedAdministrationActivityLogsRoute
+  '/administration/permissions': typeof AuthenticatedAdministrationPermissionsRoute
+  '/administration/roles': typeof AuthenticatedAdministrationRolesRoute
+  '/administration/users': typeof AuthenticatedAdministrationUsersRoute
+  '/modules/$slug': typeof AuthenticatedModulesSlugRoute
+  '/parameters/api': typeof AuthenticatedParametersApiRoute
+  '/parameters/company': typeof AuthenticatedParametersCompanyRoute
+  '/parameters/connections': typeof AuthenticatedParametersConnectionsRoute
+  '/parameters/modules': typeof AuthenticatedParametersModulesRoute
+  '/parameters/system': typeof AuthenticatedParametersSystemRoute
+  '/parameters': typeof AuthenticatedParametersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/security': typeof AuthenticatedSecurityRoute
+  '/cms/': typeof CmsIndexRoute
+  '/_authenticated/administration/activity-logs': typeof AuthenticatedAdministrationActivityLogsRoute
+  '/_authenticated/administration/permissions': typeof AuthenticatedAdministrationPermissionsRoute
+  '/_authenticated/administration/roles': typeof AuthenticatedAdministrationRolesRoute
+  '/_authenticated/administration/users': typeof AuthenticatedAdministrationUsersRoute
+  '/_authenticated/modules/$slug': typeof AuthenticatedModulesSlugRoute
+  '/_authenticated/parameters/api': typeof AuthenticatedParametersApiRoute
+  '/_authenticated/parameters/company': typeof AuthenticatedParametersCompanyRoute
+  '/_authenticated/parameters/connections': typeof AuthenticatedParametersConnectionsRoute
+  '/_authenticated/parameters/modules': typeof AuthenticatedParametersModulesRoute
+  '/_authenticated/parameters/system': typeof AuthenticatedParametersSystemRoute
+  '/_authenticated/parameters/': typeof AuthenticatedParametersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/reset-password'
+    | '/dashboard'
+    | '/profile'
+    | '/security'
+    | '/cms/'
+    | '/administration/activity-logs'
+    | '/administration/permissions'
+    | '/administration/roles'
+    | '/administration/users'
+    | '/modules/$slug'
+    | '/parameters/api'
+    | '/parameters/company'
+    | '/parameters/connections'
+    | '/parameters/modules'
+    | '/parameters/system'
+    | '/parameters/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/reset-password'
+    | '/dashboard'
+    | '/profile'
+    | '/security'
+    | '/cms'
+    | '/administration/activity-logs'
+    | '/administration/permissions'
+    | '/administration/roles'
+    | '/administration/users'
+    | '/modules/$slug'
+    | '/parameters/api'
+    | '/parameters/company'
+    | '/parameters/connections'
+    | '/parameters/modules'
+    | '/parameters/system'
+    | '/parameters'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/login'
+    | '/reset-password'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/profile'
+    | '/_authenticated/security'
+    | '/cms/'
+    | '/_authenticated/administration/activity-logs'
+    | '/_authenticated/administration/permissions'
+    | '/_authenticated/administration/roles'
+    | '/_authenticated/administration/users'
+    | '/_authenticated/modules/$slug'
+    | '/_authenticated/parameters/api'
+    | '/_authenticated/parameters/company'
+    | '/_authenticated/parameters/connections'
+    | '/_authenticated/parameters/modules'
+    | '/_authenticated/parameters/system'
+    | '/_authenticated/parameters/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  CmsIndexRoute: typeof CmsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +278,181 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/security': {
+      id: '/_authenticated/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof AuthenticatedSecurityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/cms/': {
+      id: '/cms/'
+      path: '/cms'
+      fullPath: '/cms/'
+      preLoaderRoute: typeof CmsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/administration/activity-logs': {
+      id: '/_authenticated/administration/activity-logs'
+      path: '/administration/activity-logs'
+      fullPath: '/administration/activity-logs'
+      preLoaderRoute: typeof AuthenticatedAdministrationActivityLogsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/administration/permissions': {
+      id: '/_authenticated/administration/permissions'
+      path: '/administration/permissions'
+      fullPath: '/administration/permissions'
+      preLoaderRoute: typeof AuthenticatedAdministrationPermissionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/administration/roles': {
+      id: '/_authenticated/administration/roles'
+      path: '/administration/roles'
+      fullPath: '/administration/roles'
+      preLoaderRoute: typeof AuthenticatedAdministrationRolesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/administration/users': {
+      id: '/_authenticated/administration/users'
+      path: '/administration/users'
+      fullPath: '/administration/users'
+      preLoaderRoute: typeof AuthenticatedAdministrationUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/modules/$slug': {
+      id: '/_authenticated/modules/$slug'
+      path: '/modules/$slug'
+      fullPath: '/modules/$slug'
+      preLoaderRoute: typeof AuthenticatedModulesSlugRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parameters/': {
+      id: '/_authenticated/parameters/'
+      path: '/parameters'
+      fullPath: '/parameters/'
+      preLoaderRoute: typeof AuthenticatedParametersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parameters/api': {
+      id: '/_authenticated/parameters/api'
+      path: '/parameters/api'
+      fullPath: '/parameters/api'
+      preLoaderRoute: typeof AuthenticatedParametersApiRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parameters/company': {
+      id: '/_authenticated/parameters/company'
+      path: '/parameters/company'
+      fullPath: '/parameters/company'
+      preLoaderRoute: typeof AuthenticatedParametersCompanyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parameters/connections': {
+      id: '/_authenticated/parameters/connections'
+      path: '/parameters/connections'
+      fullPath: '/parameters/connections'
+      preLoaderRoute: typeof AuthenticatedParametersConnectionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parameters/modules': {
+      id: '/_authenticated/parameters/modules'
+      path: '/parameters/modules'
+      fullPath: '/parameters/modules'
+      preLoaderRoute: typeof AuthenticatedParametersModulesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parameters/system': {
+      id: '/_authenticated/parameters/system'
+      path: '/parameters/system'
+      fullPath: '/parameters/system'
+      preLoaderRoute: typeof AuthenticatedParametersSystemRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
+  AuthenticatedAdministrationActivityLogsRoute: typeof AuthenticatedAdministrationActivityLogsRoute
+  AuthenticatedAdministrationPermissionsRoute: typeof AuthenticatedAdministrationPermissionsRoute
+  AuthenticatedAdministrationRolesRoute: typeof AuthenticatedAdministrationRolesRoute
+  AuthenticatedAdministrationUsersRoute: typeof AuthenticatedAdministrationUsersRoute
+  AuthenticatedModulesSlugRoute: typeof AuthenticatedModulesSlugRoute
+  AuthenticatedParametersApiRoute: typeof AuthenticatedParametersApiRoute
+  AuthenticatedParametersCompanyRoute: typeof AuthenticatedParametersCompanyRoute
+  AuthenticatedParametersConnectionsRoute: typeof AuthenticatedParametersConnectionsRoute
+  AuthenticatedParametersModulesRoute: typeof AuthenticatedParametersModulesRoute
+  AuthenticatedParametersSystemRoute: typeof AuthenticatedParametersSystemRoute
+  AuthenticatedParametersIndexRoute: typeof AuthenticatedParametersIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
+  AuthenticatedAdministrationActivityLogsRoute:
+    AuthenticatedAdministrationActivityLogsRoute,
+  AuthenticatedAdministrationPermissionsRoute:
+    AuthenticatedAdministrationPermissionsRoute,
+  AuthenticatedAdministrationRolesRoute: AuthenticatedAdministrationRolesRoute,
+  AuthenticatedAdministrationUsersRoute: AuthenticatedAdministrationUsersRoute,
+  AuthenticatedModulesSlugRoute: AuthenticatedModulesSlugRoute,
+  AuthenticatedParametersApiRoute: AuthenticatedParametersApiRoute,
+  AuthenticatedParametersCompanyRoute: AuthenticatedParametersCompanyRoute,
+  AuthenticatedParametersConnectionsRoute:
+    AuthenticatedParametersConnectionsRoute,
+  AuthenticatedParametersModulesRoute: AuthenticatedParametersModulesRoute,
+  AuthenticatedParametersSystemRoute: AuthenticatedParametersSystemRoute,
+  AuthenticatedParametersIndexRoute: AuthenticatedParametersIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  LoginRoute: LoginRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  CmsIndexRoute: CmsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
