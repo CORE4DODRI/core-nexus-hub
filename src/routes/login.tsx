@@ -35,6 +35,22 @@ function LoginPage() {
   useEffect(() => {
     const saved = window.localStorage.getItem("dodri.email");
     if (saved) setEmail(saved);
+    const denied = window.sessionStorage.getItem("dodri.denied");
+    if (denied) {
+      window.sessionStorage.removeItem("dodri.denied");
+      try {
+        const d = JSON.parse(denied) as { reason: string; end_date?: string };
+        const msgs: Record<string, string> = {
+          no_company: "Access denied: your account is not linked to any company. Contact your administrator.",
+          no_subscription: "Access denied: your company has no subscription. Contact your administrator.",
+          subscription_expired: `Access denied: your company's subscription has expired${d.end_date ? ` (${d.end_date})` : ""}. Please renew it.`,
+          subscription_suspended: "Access denied: your company's subscription is suspended.",
+          subscription_cancelled: "Access denied: your company's subscription was cancelled.",
+          account_disabled: "Access denied: your account is disabled. Contact your administrator.",
+        };
+        setError(msgs[d.reason] ?? "Access denied. Contact your administrator.");
+      } catch { /* ignore */ }
+    }
   }, []);
 
   useEffect(() => {
