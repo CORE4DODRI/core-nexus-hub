@@ -229,8 +229,8 @@ function UsersPage() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button onClick={invite} disabled={!form.email}>
-                    Send invitation
+                  <Button onClick={createAccount} disabled={!form.email || !form.password || !form.companyId}>
+                    Create user
                   </Button>
                 </DialogFooter>
               </DialogContent>
