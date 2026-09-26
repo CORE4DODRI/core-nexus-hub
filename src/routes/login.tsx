@@ -64,6 +64,15 @@ function LoginPage() {
     try {
       const { error: err } = await supabase.auth.signInWithPassword({ email, password });
       if (err) throw err;
+      await supabase.rpc("bootstrap_current_user", {});
+      const { data: access } = await supabase.rpc("check_access" as never);
+      const a = access as { allowed?: boolean; reason?: string; end_date?: string } | null;
+      if (!a?.allowed) {
+        window.sessionStorage.setItem("dodri.denied", JSON.stringify({ reason: a?.reason ?? "unknown", end_date: a?.end_date }));
+        await supabase.auth.signOut();
+        window.location.reload();
+        return;
+      }
       if (remember) window.localStorage.setItem("dodri.email", email);
       else window.localStorage.removeItem("dodri.email");
       await refresh();
