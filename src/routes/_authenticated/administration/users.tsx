@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useRoles, useUsers, logActivity } from "@/hooks/useCore";
 import { useAuth } from "@/hooks/useAuth";
-import { inviteUser } from "@/lib/users.functions";
+import { createUser } from "@/lib/users.functions";
 import { useCompany } from "@/hooks/useCompany";
 
 export const Route = createFileRoute("/_authenticated/administration/users")({
@@ -44,30 +44,31 @@ function UsersPage() {
   const roles = useRoles();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ first: "", last: "", email: "", roleId: "", status: "active" });
+  const [form, setForm] = useState({ first: "", last: "", email: "", password: "", roleId: "", companyId: "" });
 
   const rows = users.data ?? [];
   const canEdit = can("users.edit");
 
-  async function invite() {
+  async function createAccount() {
     if (!user) return;
     try {
-      await inviteUser({
+      await createUser({
         data: {
           email: form.email,
+          password: form.password,
           firstName: form.first || undefined,
           lastName: form.last || undefined,
           roleId: form.roleId || undefined,
-          redirectTo: `${window.location.origin}/reset-password`,
+          companyId: form.companyId,
         },
       });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Invitation failed.");
+      toast.error(e instanceof Error ? e.message : "User creation failed.");
       return;
     }
-    toast.success("Invitation email sent. The account is linked to the company automatically.");
+    toast.success("User created and linked to the company. No email was sent.");
     setOpen(false);
-    setForm({ first: "", last: "", email: "", roleId: "", status: "active" });
+    setForm({ first: "", last: "", email: "", password: "", roleId: "", companyId: "" });
     qc.invalidateQueries({ queryKey: ["users"] });
     qc.invalidateQueries({ queryKey: ["activity_logs"] });
   }
@@ -152,7 +153,7 @@ function UsersPage() {
       <PageHeader
         eyebrow="Administration"
         title="Users"
-        description={`All accounts belong to ${company.data?.name ?? "this Core installation"}. Passwords are never set manually.`}
+        description={`All accounts belong to ${company.data?.name ?? "this Core installation"}. You set each password manually — no emails are sent.`}
         actions={
           can("users.create") ? (
             <Dialog open={open} onOpenChange={setOpen}>
@@ -165,7 +166,7 @@ function UsersPage() {
                 <DialogHeader>
                   <DialogTitle>Create user</DialogTitle>
                   <DialogDescription>
-                    An invitation email is sent so the person sets their own password.
+                    You set the password here. No email is sent — share the credentials with the person yourself.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-3">
@@ -188,6 +189,30 @@ function UsersPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
+                    <Label>Password</Label>
+                    <Input
+                      type="password"
+                      value={form.password}
+                      onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Company</Label>
+                    <Select value={form.companyId} onValueChange={(v) => setForm({ ...form, companyId: v })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select company" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {company.data && (
+                          <SelectItem value={company.data.id}>{company.data.name}</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      The company's subscription applies to this user automatically.
+                    </p>
+                  </div>
+                  <div className="space-y-1.5">
                     <Label>Role</Label>
                     <Select value={form.roleId} onValueChange={(v) => setForm({ ...form, roleId: v })}>
                       <SelectTrigger>
@@ -204,8 +229,8 @@ function UsersPage() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button onClick={invite} disabled={!form.email}>
-                    Send invitation
+                  <Button onClick={createAccount} disabled={!form.email || !form.password || !form.companyId}>
+                    Create user
                   </Button>
                 </DialogFooter>
               </DialogContent>
