@@ -35,6 +35,22 @@ function LoginPage() {
   useEffect(() => {
     const saved = window.localStorage.getItem("dodri.email");
     if (saved) setEmail(saved);
+    const denied = window.sessionStorage.getItem("dodri.denied");
+    if (denied) {
+      window.sessionStorage.removeItem("dodri.denied");
+      try {
+        const d = JSON.parse(denied) as { reason: string; end_date?: string };
+        const msgs: Record<string, string> = {
+          no_company: "Access denied: your account is not linked to any company. Contact your administrator.",
+          no_subscription: "Access denied: your company has no subscription. Contact your administrator.",
+          subscription_expired: `Access denied: your company's subscription has expired${d.end_date ? ` (${d.end_date})` : ""}. Please renew it.`,
+          subscription_suspended: "Access denied: your company's subscription is suspended.",
+          subscription_cancelled: "Access denied: your company's subscription was cancelled.",
+          account_disabled: "Access denied: your account is disabled. Contact your administrator.",
+        };
+        setError(msgs[d.reason] ?? "Access denied. Contact your administrator.");
+      } catch { /* ignore */ }
+    }
   }, []);
 
   useEffect(() => {
@@ -48,6 +64,15 @@ function LoginPage() {
     try {
       const { error: err } = await supabase.auth.signInWithPassword({ email, password });
       if (err) throw err;
+      await supabase.rpc("bootstrap_current_user", {});
+      const { data: access } = await supabase.rpc("check_access" as never);
+      const a = access as { allowed?: boolean; reason?: string; end_date?: string } | null;
+      if (!a?.allowed) {
+        window.sessionStorage.setItem("dodri.denied", JSON.stringify({ reason: a?.reason ?? "unknown", end_date: a?.end_date }));
+        await supabase.auth.signOut();
+        window.location.reload();
+        return;
+      }
       if (remember) window.localStorage.setItem("dodri.email", email);
       else window.localStorage.removeItem("dodri.email");
       await refresh();
