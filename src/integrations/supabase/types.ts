@@ -492,6 +492,7 @@ export type Database = {
         Args: { _first_name?: string; _last_name?: string }
         Returns: undefined
       }
+      check_access: { Args: never; Returns: Json }
       has_permission: {
         Args: { _code: string; _user_id: string }
         Returns: boolean
