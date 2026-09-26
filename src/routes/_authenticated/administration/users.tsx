@@ -153,7 +153,7 @@ function UsersPage() {
       <PageHeader
         eyebrow="Administration"
         title="Users"
-        description={`All accounts belong to ${company.data?.name ?? "this Core installation"}. Passwords are never set manually.`}
+        description={`All accounts belong to ${company.data?.name ?? "this Core installation"}. You set each password manually — no emails are sent.`}
         actions={
           can("users.create") ? (
             <Dialog open={open} onOpenChange={setOpen}>
@@ -166,7 +166,7 @@ function UsersPage() {
                 <DialogHeader>
                   <DialogTitle>Create user</DialogTitle>
                   <DialogDescription>
-                    An invitation email is sent so the person sets their own password.
+                    You set the password here. No email is sent — share the credentials with the person yourself.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-3">
