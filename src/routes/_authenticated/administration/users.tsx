@@ -189,6 +189,30 @@ function UsersPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
+                    <Label>Password</Label>
+                    <Input
+                      type="password"
+                      value={form.password}
+                      onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Company</Label>
+                    <Select value={form.companyId} onValueChange={(v) => setForm({ ...form, companyId: v })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select company" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {company.data && (
+                          <SelectItem value={company.data.id}>{company.data.name}</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      The company's subscription applies to this user automatically.
+                    </p>
+                  </div>
+                  <div className="space-y-1.5">
                     <Label>Role</Label>
                     <Select value={form.roleId} onValueChange={(v) => setForm({ ...form, roleId: v })}>
                       <SelectTrigger>
