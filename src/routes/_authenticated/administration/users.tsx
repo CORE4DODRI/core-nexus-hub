@@ -248,7 +248,9 @@ function UsersPage() {
                   {[u.first_name, u.last_name].filter(Boolean).join(" ") || "—"}
                 </TableCell>
                 <TableCell className="text-muted-foreground">{u.email}</TableCell>
-                <TableCell className="text-muted-foreground">{company.data?.name ?? "—"}</TableCell>
+<TableCell className="text-muted-foreground">
+                  {u.company_id ? (company.data?.name ?? "—") : "Not linked"}
+                </TableCell>
                 <TableCell>
                   {canEdit ? (
                     <Select value={u.role_id ?? ""} onValueChange={(v) => setRole(u.id, v)}>
@@ -278,6 +280,16 @@ function UsersPage() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
+                    {canEdit && !u.company_id && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        title="Link to company"
+                        onClick={() => linkToCompany(u.id)}
+                      >
+                        <Building2 className="h-4 w-4" />
+                      </Button>
+                    )}
                     <Button variant="ghost" size="sm" onClick={() => sendReset(u.email)}>
                       <KeyRound className="h-4 w-4" />
                     </Button>
