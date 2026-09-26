@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { KeyRound, Power, UserPlus } from "lucide-react";
+import { Building2, KeyRound, Power, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useRoles, useUsers, logActivity } from "@/hooks/useCore";
 import { useAuth } from "@/hooks/useAuth";
+import { inviteUser } from "@/lib/users.functions";
 import { useCompany } from "@/hooks/useCompany";
 
 export const Route = createFileRoute("/_authenticated/administration/users")({
@@ -50,23 +51,24 @@ function UsersPage() {
 
   async function invite() {
     if (!user) return;
-    const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    if (error) {
-      toast.error(error.message);
+    try {
+      await inviteUser({
+        data: {
+          email: form.email,
+          firstName: form.first || undefined,
+          lastName: form.last || undefined,
+          roleId: form.roleId || undefined,
+          redirectTo: `${window.location.origin}/reset-password`,
+        },
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Invitation failed.");
       return;
     }
-    await logActivity({
-      userId: user.id,
-      actor: profile?.email ?? null,
-      action: "user.invited",
-      entityType: "user",
-      description: `Invitation sent to ${form.email}`,
-    });
-    toast.success("Invitation email sent. The account is created when they set their password.");
+    toast.success("Invitation email sent. The account is linked to the company automatically.");
     setOpen(false);
     setForm({ first: "", last: "", email: "", roleId: "", status: "active" });
+    qc.invalidateQueries({ queryKey: ["users"] });
     qc.invalidateQueries({ queryKey: ["activity_logs"] });
   }
 
