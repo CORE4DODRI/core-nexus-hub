@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Building2, KeyRound, Power, UserPlus } from "lucide-react";
+import { Building2, KeyRound, Pencil, Power, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useModules, useRoles, useUsers, logActivity } from "@/hooks/useCore";
 import { useAuth } from "@/hooks/useAuth";
-import { createUser } from "@/lib/users.functions";
+import { createUser, editUser } from "@/lib/users.functions";
 import { useCompany } from "@/hooks/useCompany";
 
 export const Route = createFileRoute("/_authenticated/administration/users")({
@@ -344,6 +344,11 @@ function UsersPage() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
+                    {canEdit && (
+                      <Button variant="ghost" size="sm" title="Edit user" onClick={() => openEdit(u)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    )}
                     {canEdit && !u.company_id && (
                       <Button
                         variant="ghost"
@@ -354,11 +359,11 @@ function UsersPage() {
                         <Building2 className="h-4 w-4" />
                       </Button>
                     )}
-                    <Button variant="ghost" size="sm" onClick={() => sendReset(u.email)}>
+                    <Button variant="ghost" size="sm" title="Send password reset email" onClick={() => sendReset(u.email)}>
                       <KeyRound className="h-4 w-4" />
                     </Button>
                     {canEdit && (
-                      <Button variant="ghost" size="sm" onClick={() => toggleStatus(u.id, u.status)}>
+                      <Button variant="ghost" size="sm" title="Activate / deactivate" onClick={() => toggleStatus(u.id, u.status)}>
                         <Power className="h-4 w-4" />
                       </Button>
                     )}
