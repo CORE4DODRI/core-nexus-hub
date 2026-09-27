@@ -65,7 +65,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="py-1">
+        {isSuper && <SidebarGroup className="py-1">
           <SidebarGroupLabel>Administration</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -111,7 +111,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarGroup>}
 
         <SidebarGroup className="py-1">
           <SidebarGroupLabel>Modules</SidebarGroupLabel>
@@ -152,7 +152,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="py-1">
+        {isSuper && <SidebarGroup className="py-1">
           <SidebarGroupLabel>Parameters</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -226,7 +226,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarGroup>}
       </SidebarContent>
 
       <SidebarFooter className="px-3 pb-3">
