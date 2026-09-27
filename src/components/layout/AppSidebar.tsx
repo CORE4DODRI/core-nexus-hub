@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/sidebar";
 import { DodriLogo, DodriMark } from "@/components/brand/DodriLogo";
 import { useModules } from "@/hooks/useCore";
+import { useAuth } from "@/hooks/useAuth";
 import { moduleIcon } from "@/lib/dodri/icons";
 
 export function AppSidebar() {
@@ -41,6 +42,7 @@ export function AppSidebar() {
   const { data: modules } = useModules();
   const activeModules = (modules ?? []).filter((m) => m.enabled);
 
+  const { isSuper } = useAuth();
   const isActive = (path: string) => pathname === path;
 
   return (
