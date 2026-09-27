@@ -425,6 +425,119 @@ function UsersPage() {
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit user</DialogTitle>
+            <DialogDescription>
+              Changes apply immediately. Leave the password empty to keep the current one. No email is sent.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>First name</Label>
+                <Input value={editForm.first} onChange={(e) => setEditForm({ ...editForm, first: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Last name</Label>
+                <Input value={editForm.last} onChange={(e) => setEditForm({ ...editForm, last: e.target.value })} />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>New password (optional)</Label>
+              <Input
+                type="password"
+                value={editForm.password}
+                onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
+                placeholder="Leave empty to keep current password"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Company</Label>
+              <Select value={editForm.companyId} onValueChange={(v) => setEditForm({ ...editForm, companyId: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select company" />
+                </SelectTrigger>
+                <SelectContent>
+                  {company.data && (
+                    <SelectItem value={company.data.id}>{company.data.name}</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                The company's subscription applies to this user automatically.
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Permission</Label>
+              <Select
+                value={editForm.accessType}
+                onValueChange={(v) => setEditForm({ ...editForm, accessType: v as typeof editForm.accessType, moduleIds: [] })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="super_admin">Super Administrateur — sees everything</SelectItem>
+                  <SelectItem value="interne">Permission Interne — selected modules</SelectItem>
+                  <SelectItem value="externe">Permission Externe — modules inside SaaS</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {editForm.accessType !== "super_admin" && (() => {
+              const all = modules.data ?? [];
+              const saas = all.find((m) => m.slug === "saas");
+              const list = editForm.accessType === "externe"
+                ? all.filter((m) => saas && (m as { parent_id?: string | null }).parent_id === saas.id)
+                : all.filter((m) => m.slug !== "saas" && !(m as { parent_id?: string | null }).parent_id);
+              return (
+                <div className="space-y-1.5">
+                  <Label>Modules</Label>
+                  <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border border-border p-2">
+                    {list.length === 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {editForm.accessType === "externe" ? "No modules inside SaaS yet." : "No modules available."}
+                      </p>
+                    )}
+                    {list.map((m) => (
+                      <label key={m.id} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={editForm.moduleIds.includes(m.id)}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              moduleIds: e.target.checked
+                                ? [...editForm.moduleIds, m.id]
+                                : editForm.moduleIds.filter((x) => x !== m.id),
+                            })
+                          }
+                        />
+                        {m.name}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+          <DialogFooter>
+            <Button onClick={saveEdit} disabled={!editForm.email}>
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
