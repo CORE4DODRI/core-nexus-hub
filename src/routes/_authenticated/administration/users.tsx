@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useRoles, useUsers, logActivity } from "@/hooks/useCore";
+import { useModules, useRoles, useUsers, logActivity } from "@/hooks/useCore";
 import { useAuth } from "@/hooks/useAuth";
 import { createUser } from "@/lib/users.functions";
 import { useCompany } from "@/hooks/useCompany";
@@ -42,9 +42,10 @@ function UsersPage() {
   const users = useUsers();
   const company = useCompany();
   const roles = useRoles();
+  const modules = useModules();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ first: "", last: "", email: "", password: "", roleId: "", companyId: "" });
+  const [form, setForm] = useState({ first: "", last: "", email: "", password: "", accessType: "interne" as "super_admin" | "interne" | "externe", moduleIds: [] as string[], companyId: "" });
 
   const rows = users.data ?? [];
   const canEdit = can("users.edit");
@@ -58,7 +59,8 @@ function UsersPage() {
           password: form.password,
           firstName: form.first || undefined,
           lastName: form.last || undefined,
-          roleId: form.roleId || undefined,
+          accessType: form.accessType,
+          moduleIds: form.moduleIds,
           companyId: form.companyId,
         },
       });
@@ -68,7 +70,7 @@ function UsersPage() {
     }
     toast.success("User created and linked to the company. No email was sent.");
     setOpen(false);
-    setForm({ first: "", last: "", email: "", password: "", roleId: "", companyId: "" });
+    setForm({ first: "", last: "", email: "", password: "", accessType: "interne" as "super_admin" | "interne" | "externe", moduleIds: [] as string[], companyId: "" });
     qc.invalidateQueries({ queryKey: ["users"] });
     qc.invalidateQueries({ queryKey: ["activity_logs"] });
   }
@@ -213,20 +215,57 @@ function UsersPage() {
                     </p>
                   </div>
                   <div className="space-y-1.5">
-                    <Label>Role</Label>
-                    <Select value={form.roleId} onValueChange={(v) => setForm({ ...form, roleId: v })}>
+                    <Label>Permission</Label>
+                    <Select
+                      value={form.accessType}
+                      onValueChange={(v) => setForm({ ...form, accessType: v as typeof form.accessType, moduleIds: [] })}
+                    >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select role" />
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {(roles.data ?? []).map((r) => (
-                          <SelectItem key={r.id} value={r.id}>
-                            {r.name}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="super_admin">Super Administrateur — sees everything</SelectItem>
+                        <SelectItem value="interne">Permission Interne — selected modules</SelectItem>
+                        <SelectItem value="externe">Permission Externe — modules inside SaaS</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+                  {form.accessType !== "super_admin" && (() => {
+                    const all = modules.data ?? [];
+                    const saas = all.find((m) => m.slug === "saas");
+                    const list = form.accessType === "externe"
+                      ? all.filter((m) => saas && (m as { parent_id?: string | null }).parent_id === saas.id)
+                      : all.filter((m) => m.slug !== "saas" && !(m as { parent_id?: string | null }).parent_id);
+                    return (
+                      <div className="space-y-1.5">
+                        <Label>Modules</Label>
+                        <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border border-border p-2">
+                          {list.length === 0 && (
+                            <p className="text-xs text-muted-foreground">
+                              {form.accessType === "externe" ? "No modules inside SaaS yet." : "No modules available."}
+                            </p>
+                          )}
+                          {list.map((m) => (
+                            <label key={m.id} className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={form.moduleIds.includes(m.id)}
+                                onChange={(e) =>
+                                  setForm({
+                                    ...form,
+                                    moduleIds: e.target.checked
+                                      ? [...form.moduleIds, m.id]
+                                      : form.moduleIds.filter((x) => x !== m.id),
+                                  })
+                                }
+                              />
+                              {m.name}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
                 <DialogFooter>
                   <Button onClick={createAccount} disabled={!form.email || !form.password || !form.companyId}>
