@@ -166,6 +166,7 @@ export type Database = {
           icon: string
           id: string
           name: string
+          parent_id: string | null
           route: string | null
           slug: string
           status: string
@@ -180,6 +181,7 @@ export type Database = {
           icon?: string
           id?: string
           name: string
+          parent_id?: string | null
           route?: string | null
           slug: string
           status?: string
@@ -194,13 +196,22 @@ export type Database = {
           icon?: string
           id?: string
           name?: string
+          parent_id?: string | null
           route?: string | null
           slug?: string
           status?: string
           updated_at?: string
           version?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "modules_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       permissions: {
         Row: {
@@ -228,6 +239,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          access_type: string
           company_id: string | null
           created_at: string
           email: string | null
@@ -239,6 +251,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_type?: string
           company_id?: string | null
           created_at?: string
           email?: string | null
@@ -250,6 +263,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_type?: string
           company_id?: string | null
           created_at?: string
           email?: string | null
@@ -454,6 +468,35 @@ export type Database = {
         }
         Relationships: []
       }
+      user_module_access: {
+        Row: {
+          created_at: string
+          id: string
+          module_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_module_access_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -491,6 +534,10 @@ export type Database = {
       bootstrap_current_user: {
         Args: { _first_name?: string; _last_name?: string }
         Returns: undefined
+      }
+      can_see_module: {
+        Args: { _module_id: string; _uid: string }
+        Returns: boolean
       }
       check_access: { Args: never; Returns: Json }
       has_permission: {
