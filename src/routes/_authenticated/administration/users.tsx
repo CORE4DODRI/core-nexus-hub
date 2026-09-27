@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Building2, KeyRound, Power, UserPlus } from "lucide-react";
+import { Building2, KeyRound, Pencil, Power, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useModules, useRoles, useUsers, logActivity } from "@/hooks/useCore";
 import { useAuth } from "@/hooks/useAuth";
-import { createUser } from "@/lib/users.functions";
+import { createUser, editUser } from "@/lib/users.functions";
 import { useCompany } from "@/hooks/useCompany";
 
 export const Route = createFileRoute("/_authenticated/administration/users")({
@@ -46,6 +46,50 @@ function UsersPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ first: "", last: "", email: "", password: "", accessType: "interne" as "super_admin" | "interne" | "externe", moduleIds: [] as string[], companyId: "" });
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({ id: "", first: "", last: "", email: "", password: "", accessType: "interne" as "super_admin" | "interne" | "externe", moduleIds: [] as string[], companyId: "" });
+
+  async function openEdit(u: (typeof rows)[number]) {
+    const { data: access } = await supabase
+      .from("user_module_access")
+      .select("module_id")
+      .eq("user_id", u.id);
+    setEditForm({
+      id: u.id,
+      first: u.first_name ?? "",
+      last: u.last_name ?? "",
+      email: u.email ?? "",
+      password: "",
+      accessType: (u.access_type as "super_admin" | "interne" | "externe") ?? "interne",
+      moduleIds: (access ?? []).map((a) => a.module_id),
+      companyId: u.company_id ?? "",
+    });
+    setEditOpen(true);
+  }
+
+  async function saveEdit() {
+    try {
+      await editUser({
+        data: {
+          userId: editForm.id,
+          email: editForm.email,
+          password: editForm.password || undefined,
+          firstName: editForm.first || undefined,
+          lastName: editForm.last || undefined,
+          accessType: editForm.accessType,
+          moduleIds: editForm.moduleIds,
+          companyId: editForm.companyId || null,
+        },
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "User update failed.");
+      return;
+    }
+    toast.success("User updated. No email was sent.");
+    setEditOpen(false);
+    qc.invalidateQueries({ queryKey: ["users"] });
+    qc.invalidateQueries({ queryKey: ["activity_logs"] });
+  }
 
   const rows = users.data ?? [];
   const canEdit = can("users.edit");
@@ -344,6 +388,11 @@ function UsersPage() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
+                    {canEdit && (
+                      <Button variant="ghost" size="sm" title="Edit user" onClick={() => openEdit(u)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    )}
                     {canEdit && !u.company_id && (
                       <Button
                         variant="ghost"
@@ -354,11 +403,11 @@ function UsersPage() {
                         <Building2 className="h-4 w-4" />
                       </Button>
                     )}
-                    <Button variant="ghost" size="sm" onClick={() => sendReset(u.email)}>
+                    <Button variant="ghost" size="sm" title="Send password reset email" onClick={() => sendReset(u.email)}>
                       <KeyRound className="h-4 w-4" />
                     </Button>
                     {canEdit && (
-                      <Button variant="ghost" size="sm" onClick={() => toggleStatus(u.id, u.status)}>
+                      <Button variant="ghost" size="sm" title="Activate / deactivate" onClick={() => toggleStatus(u.id, u.status)}>
                         <Power className="h-4 w-4" />
                       </Button>
                     )}
@@ -376,6 +425,119 @@ function UsersPage() {
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit user</DialogTitle>
+            <DialogDescription>
+              Changes apply immediately. Leave the password empty to keep the current one. No email is sent.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>First name</Label>
+                <Input value={editForm.first} onChange={(e) => setEditForm({ ...editForm, first: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Last name</Label>
+                <Input value={editForm.last} onChange={(e) => setEditForm({ ...editForm, last: e.target.value })} />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>New password (optional)</Label>
+              <Input
+                type="password"
+                value={editForm.password}
+                onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
+                placeholder="Leave empty to keep current password"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Company</Label>
+              <Select value={editForm.companyId} onValueChange={(v) => setEditForm({ ...editForm, companyId: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select company" />
+                </SelectTrigger>
+                <SelectContent>
+                  {company.data && (
+                    <SelectItem value={company.data.id}>{company.data.name}</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                The company's subscription applies to this user automatically.
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Permission</Label>
+              <Select
+                value={editForm.accessType}
+                onValueChange={(v) => setEditForm({ ...editForm, accessType: v as typeof editForm.accessType, moduleIds: [] })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="super_admin">Super Administrateur — sees everything</SelectItem>
+                  <SelectItem value="interne">Permission Interne — selected modules</SelectItem>
+                  <SelectItem value="externe">Permission Externe — modules inside SaaS</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {editForm.accessType !== "super_admin" && (() => {
+              const all = modules.data ?? [];
+              const saas = all.find((m) => m.slug === "saas");
+              const list = editForm.accessType === "externe"
+                ? all.filter((m) => saas && (m as { parent_id?: string | null }).parent_id === saas.id)
+                : all.filter((m) => m.slug !== "saas" && !(m as { parent_id?: string | null }).parent_id);
+              return (
+                <div className="space-y-1.5">
+                  <Label>Modules</Label>
+                  <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border border-border p-2">
+                    {list.length === 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {editForm.accessType === "externe" ? "No modules inside SaaS yet." : "No modules available."}
+                      </p>
+                    )}
+                    {list.map((m) => (
+                      <label key={m.id} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={editForm.moduleIds.includes(m.id)}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              moduleIds: e.target.checked
+                                ? [...editForm.moduleIds, m.id]
+                                : editForm.moduleIds.filter((x) => x !== m.id),
+                            })
+                          }
+                        />
+                        {m.name}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+          <DialogFooter>
+            <Button onClick={saveEdit} disabled={!editForm.email}>
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
