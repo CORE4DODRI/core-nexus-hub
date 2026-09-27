@@ -46,6 +46,50 @@ function UsersPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ first: "", last: "", email: "", password: "", accessType: "interne" as "super_admin" | "interne" | "externe", moduleIds: [] as string[], companyId: "" });
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({ id: "", first: "", last: "", email: "", password: "", accessType: "interne" as "super_admin" | "interne" | "externe", moduleIds: [] as string[], companyId: "" });
+
+  async function openEdit(u: (typeof rows)[number]) {
+    const { data: access } = await supabase
+      .from("user_module_access")
+      .select("module_id")
+      .eq("user_id", u.id);
+    setEditForm({
+      id: u.id,
+      first: u.first_name ?? "",
+      last: u.last_name ?? "",
+      email: u.email ?? "",
+      password: "",
+      accessType: (u.access_type as "super_admin" | "interne" | "externe") ?? "interne",
+      moduleIds: (access ?? []).map((a) => a.module_id),
+      companyId: u.company_id ?? "",
+    });
+    setEditOpen(true);
+  }
+
+  async function saveEdit() {
+    try {
+      await editUser({
+        data: {
+          userId: editForm.id,
+          email: editForm.email,
+          password: editForm.password || undefined,
+          firstName: editForm.first || undefined,
+          lastName: editForm.last || undefined,
+          accessType: editForm.accessType,
+          moduleIds: editForm.moduleIds,
+          companyId: editForm.companyId || null,
+        },
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "User update failed.");
+      return;
+    }
+    toast.success("User updated. No email was sent.");
+    setEditOpen(false);
+    qc.invalidateQueries({ queryKey: ["users"] });
+    qc.invalidateQueries({ queryKey: ["activity_logs"] });
+  }
 
   const rows = users.data ?? [];
   const canEdit = can("users.edit");
