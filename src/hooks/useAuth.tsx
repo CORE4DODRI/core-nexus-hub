@@ -9,6 +9,7 @@ export type Profile = {
   email: string | null;
   status: string;
   last_login_at: string | null;
+  access_type?: string;
 };
 
 type AuthState = {
@@ -19,6 +20,7 @@ type AuthState = {
   roleName: string | null;
   permissions: string[];
   can: (code: string) => boolean;
+  isSuper: boolean;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -29,7 +31,7 @@ async function loadAccess(userId: string) {
   const [{ data: profile }, { data: userRoles }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, first_name, last_name, email, status, last_login_at")
+      .select("id, first_name, last_name, email, status, last_login_at, access_type")
       .eq("id", userId)
       .maybeSingle(),
     supabase.from("user_roles").select("role_id, roles(name, slug)").eq("user_id", userId),
@@ -123,6 +125,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       roleName,
       permissions,
       can: (code: string) => permissions.includes(code),
+      isSuper:
+        profile?.access_type === "super_admin" ||
+        (roleName ?? "").toLowerCase().includes("super admin") ||
+        (profile?.email ?? "").toLowerCase() === "admin@dodricom.com",
       refresh: async () => {
         await hydrate(session?.user.id);
       },

@@ -7,7 +7,8 @@ const createSchema = z.object({
   password: z.string().min(6),
   firstName: z.string().max(100).optional(),
   lastName: z.string().max(100).optional(),
-  roleId: z.string().uuid().optional(),
+  accessType: z.enum(["super_admin","interne","externe"]),
+  moduleIds: z.array(z.string().uuid()).default([]),
   companyId: z.string().uuid(),
 });
 
@@ -60,15 +61,25 @@ export const createUser = createServerFn({ method: "POST" })
       last_name: data.lastName ?? null,
       company_id: company.id,
       status: "active",
+      access_type: data.accessType,
     });
     if (profileError) throw new Error(profileError.message);
 
-    // Assign the chosen role
-    if (data.roleId) {
+    // Map access type to an underlying role
+    const slug = data.accessType === "super_admin" ? "super-admin" : "viewer";
+    const { data: role } = await supabaseAdmin.from("roles").select("id").eq("slug", slug).single();
+    if (role) {
       const { error: roleError } = await supabaseAdmin
         .from("user_roles")
-        .insert({ user_id: newUserId, role_id: data.roleId });
+        .insert({ user_id: newUserId, role_id: role.id });
       if (roleError) throw new Error(roleError.message);
+    }
+
+    if (data.accessType !== "super_admin" && data.moduleIds.length) {
+      const { error: accErr } = await supabaseAdmin
+        .from("user_module_access")
+        .insert(data.moduleIds.map((module_id) => ({ user_id: newUserId, module_id })));
+      if (accErr) throw new Error(accErr.message);
     }
 
     await supabase.from("activity_logs").insert({

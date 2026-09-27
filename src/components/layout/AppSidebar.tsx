@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/sidebar";
 import { DodriLogo, DodriMark } from "@/components/brand/DodriLogo";
 import { useModules } from "@/hooks/useCore";
+import { useAuth } from "@/hooks/useAuth";
 import { moduleIcon } from "@/lib/dodri/icons";
 
 export function AppSidebar() {
@@ -41,6 +42,7 @@ export function AppSidebar() {
   const { data: modules } = useModules();
   const activeModules = (modules ?? []).filter((m) => m.enabled);
 
+  const { isSuper } = useAuth();
   const isActive = (path: string) => pathname === path;
 
   return (
@@ -65,7 +67,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="py-1">
+        {isSuper && <SidebarGroup className="py-1">
           <SidebarGroupLabel>Administration</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -111,7 +113,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarGroup>}
 
         <SidebarGroup className="py-1">
           <SidebarGroupLabel>Modules</SidebarGroupLabel>
@@ -152,7 +154,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="py-1">
+        {isSuper && <SidebarGroup className="py-1">
           <SidebarGroupLabel>Parameters</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -226,7 +228,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarGroup>}
       </SidebarContent>
 
       <SidebarFooter className="px-3 pb-3">

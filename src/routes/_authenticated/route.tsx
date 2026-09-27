@@ -4,7 +4,7 @@ import { AppShell } from "@/components/layout/AppShell";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/login" });
     // Company + subscription gate (super admin is always allowed).
@@ -18,6 +18,11 @@ export const Route = createFileRoute("/_authenticated")({
       );
       await supabase.auth.signOut();
       throw redirect({ to: "/login" });
+    }
+    if (/^\/(administration|parameters|security)/.test(location.pathname)) {
+      const { data: p } = await supabase.from("profiles").select("access_type").eq("id", data.user.id).maybeSingle();
+      const { data: isSa } = await supabase.rpc("has_role_slug", { _user_id: data.user.id, _slug: "super-admin" });
+      if (p?.access_type !== "super_admin" && !isSa) throw redirect({ to: "/dashboard" });
     }
     return { user: data.user };
   },
